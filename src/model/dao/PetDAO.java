@@ -34,16 +34,8 @@ public class PetDAO {
 		}
 	}
 
-	/**
-	 *
-	 * 
-	 * 
-	 * @return
-	 * 
-	 */
-
 	public List<Pet> read() {
-		Connection con = ConnectionFactory.getConnection();// abre a conexao
+		Connection con = ConnectionFactory.getConnection();
 		PreparedStatement stmt = null;
 		ResultSet rs = null;
 		List<Pet> Pets = new ArrayList<>();
@@ -83,11 +75,10 @@ public class PetDAO {
 			stmt.executeUpdate();
 			JOptionPane.showMessageDialog(null, "Atualizado com sucesso.");
 		} catch (SQLException ex) {
-//Logger.getLogger(PetDAO.class.getNam()).log(Level.SEVERE, null, ex);
 			JOptionPane.showMessageDialog(null, "Erro ao atualizar " + ex);
 		}
 		finally {
-//ConnectionFactory.closeConnection(con, stmt);
+			ConnectionFactory.closeConnection(con, stmt);
 		}
 	}
 
@@ -100,41 +91,10 @@ public class PetDAO {
 			stmt.executeUpdate();
 			JOptionPane.showMessageDialog(null, "Excluido com sucesso.");
 		} catch (SQLException ex) {
-//Logger.getLogger(PetDAO.class.getNam()).log(Level.SEVERE, null, ex);
 			JOptionPane.showMessageDialog(null, "Erro ao exlcuir " + ex);
 		}
 		finally {
-//ConnectionFactory.closeConnection(con, stmt);
+			ConnectionFactory.closeConnection(con, stmt);
 		}
-	}
-
-	private void setCodigo(String string) {
-		throw new UnsupportedOperationException("Not supported yet."); // To change body of generated methods, choose
-																		// Tools | Templates.
-	}
-
-	private void setNome(String string) {
-		throw new UnsupportedOperationException("Not supported yet."); // To change body of generated methods, choose
-																		// Tools | Templates.
-	}
-
-	private void setTutor(String string) {
-		throw new UnsupportedOperationException("Not supported yet."); // To change body of generated methods, choose
-																		// Tools | Templates.
-	}
-
-	private void setPorte(String string) {
-		throw new UnsupportedOperationException("Not supported yet."); // To change body of generated methods, choose
-																		// Tools | Templates.
-	}
-
-	private void setRaca(String string) {
-		throw new UnsupportedOperationException("Not supported yet."); // To change body of generated methods, choose
-																		// Tools | Templates.
-	}
-
-	private void setSexo(String string) {
-		throw new UnsupportedOperationException("Not supported yet."); // To change body of generated methods, choose
-																		// Tools | Templates.
 	}
 }

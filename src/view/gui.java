@@ -1,19 +1,22 @@
 package view;
 
 import java.awt.Color;
-import java.awt.EventQueue;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.FileInputStream;
 import java.util.List;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
+import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -21,6 +24,7 @@ import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 
 import model.bean.Pet;
@@ -28,32 +32,18 @@ import model.dao.PetDAO;
 
 public class gui {
 
-	private JFrame frame;
+	public JFrame frame;
 	private JTextField tfNome;
 	private JTextField tfCodigo;
 	private JTextField tfRaca;
 	private JTextField tfNomeDoTutor;
 	private JTable table;
 	private final ButtonGroup buttonGroup = new ButtonGroup();
-	private JTextField textField;
 	private JComboBox comboBox;
+	private FileInputStream fis;
+	private int tamanho;
+	private JLabel lblImagem;
 
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					gui window = new gui();
-					window.frame.setVisible(true);
-					window.readJTable();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
 
 	/**
 	 * Create the application.
@@ -67,7 +57,7 @@ public class gui {
 	 */
 	private void initialize() {
 		frame = new JFrame();
-		frame.setBounds(100, 100, 814, 594);
+		frame.setBounds(100, 100, 773, 594);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 
@@ -227,14 +217,36 @@ public class gui {
 		comboBox.setBounds(34, 88, 86, 20);
 		frame.getContentPane().add(comboBox);
 		
-		textField = new JTextField();
-		textField.setBounds(442, 32, 300, 300);
-		frame.getContentPane().add(textField);
-		textField.setColumns(10);
+		JButton btnImagem = new JButton("Selecionar Imagem");
+		btnImagem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				carregarFoto();
+			}
+		});
+		btnImagem.setBounds(38, 221, 220, 23);
+		frame.getContentPane().add(btnImagem);
 		
-		JButton brtImagem = new JButton("Selecionar Imagem");
-		brtImagem.setBounds(38, 221, 220, 23);
-		frame.getContentPane().add(brtImagem);
+		lblImagem = new JLabel("");
+		lblImagem.setBounds(442, 11, 300, 300);
+		lblImagem.setBorder(BorderFactory.createLineBorder(Color.black));
+		frame.getContentPane().add(lblImagem);
+	}
+	
+	private void carregarFoto() {
+		JFileChooser jfc = new JFileChooser();
+		jfc.setDialogTitle("Selecionar Arquivo");
+		jfc.setFileFilter(new FileNameExtensionFilter("Arquivo de imagens (*.PNG, *.JPG, *.JPEG)", "png", "jpg", "jpeg"));
+		int resultado = jfc.showOpenDialog(frame);
+		if (resultado == JFileChooser.APPROVE_OPTION) {
+			try {
+				fis = new FileInputStream(jfc.getSelectedFile());
+				tamanho = (int) jfc.getSelectedFile().length();
+				Image foto = ImageIO.read(jfc.getSelectedFile()).getScaledInstance(lblImagem.getWidth(), lblImagem.getHeight(), Image.SCALE_SMOOTH);
+				lblImagem.setIcon(new ImageIcon(foto));
+			} catch (Exception e) {
+				System.out.println(e);
+			}
+		}
 	}
 
 	public void readJTable() {
