@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 import com.mysql.cj.x.protobuf.MysqlxNotice.Warning.Level;
 
 public class ConnectionFactory {
-	private static final String URL = "jdbc:mysql://localhost:3306/cadagenda";
+	private static final String URL = "jdbc:mysql://localhost:3306/aps_";
 	private static final String USER = "root";
 	private static final String PASS = "1234";
 

@@ -11,33 +11,32 @@ import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ButtonGroup;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 
-import model.bean.Cliente;
-import model.dao.ClienteDAO;
-import javax.swing.JComboBox;
-import javax.swing.DefaultComboBoxModel;
+import model.bean.Pet;
+import model.dao.PetDAO;
 
 public class gui {
 
 	private JFrame frame;
 	private JTextField tfNome;
 	private JTextField tfCodigo;
-	private JTextField tfCelular;
+	private JTextField tfRaca;
 	private JTextField tfNomeDoTutor;
 	private JTable table;
 	private final ButtonGroup buttonGroup = new ButtonGroup();
-	private final Action action = new SwingAction();
 	private JTextField textField;
+	private JComboBox comboBox;
 
 	/**
 	 * Launch the application.
@@ -97,14 +96,14 @@ public class gui {
 		frame.getContentPane().add(tfCodigo);
 		tfCodigo.setColumns(10);
 
-		JLabel lblCor = new JLabel("Cor");
-		lblCor.setBounds(180, 63, 46, 14);
-		frame.getContentPane().add(lblCor);
+		JLabel lblraca = new JLabel("Raça");
+		lblraca.setBounds(180, 63, 46, 14);
+		frame.getContentPane().add(lblraca);
 
-		tfCelular = new JTextField();
-		tfCelular.setBounds(152, 88, 86, 20);
-		frame.getContentPane().add(tfCelular);
-		tfCelular.setColumns(10);
+		tfRaca = new JTextField();
+		tfRaca.setBounds(152, 88, 86, 20);
+		frame.getContentPane().add(tfRaca);
+		tfRaca.setColumns(10);
 
 		JLabel lblNomeDoTutor = new JLabel("Nome do Tutor");
 		lblNomeDoTutor.setBounds(247, 11, 82, 14);
@@ -115,7 +114,7 @@ public class gui {
 		frame.getContentPane().add(tfNomeDoTutor);
 		tfNomeDoTutor.setColumns(10);
 
-		JLabel labelSexo = new JLabel("Sexo");
+		JLabel labelSexo = new JLabel("Sexo:");
 		labelSexo.setBounds(38, 153, 46, 14);
 		frame.getContentPane().add(labelSexo);
 
@@ -129,7 +128,7 @@ public class gui {
 		rbFemea.setBounds(123, 149, 67, 23);
 		frame.getContentPane().add(rbFemea);
 		
-		DefaultTableModel modelo = new DefaultTableModel(new String[] { "ID", "Nome do Pet", "Nome do Tutor", "Porte", "Cor", "Sexo"}, 0);
+		DefaultTableModel modelo = new DefaultTableModel(new String[] { "ID", "Nome do Pet", "Nome do Tutor", "Porte", "Raça", "Sexo"}, 0);
 		table = new JTable(modelo);
 		table.setBackground(Color.LIGHT_GRAY);
 		table.addMouseListener(new MouseAdapter() {
@@ -139,9 +138,9 @@ public class gui {
 					tfCodigo.setText(table.getValueAt(table.getSelectedRow(), 0).toString());
 					tfNome.setText(table.getValueAt(table.getSelectedRow(), 1).toString());
 					tfNomeDoTutor.setText(table.getValueAt(table.getSelectedRow(), 2).toString());
-					tfFone.setText(table.getValueAt(table.getSelectedRow(), 3).toString());
-					tfCelular.setText(table.getValueAt(table.getSelectedRow(), 4).toString());
-					if ("M".equals(table.getValueAt(table.getSelectedRow(), 5).toString())) {
+					comboBox.setSelectedItem(table.getValueAt(table.getSelectedRow(), 3));
+					tfRaca.setText(table.getValueAt(table.getSelectedRow(), 4).toString());
+					if ("Macho".equals(table.getValueAt(table.getSelectedRow(), 5).toString())) {
 					    rbMacho.setSelected(true);
 					    rbFemea.setSelected(false);
 					} else {
@@ -160,19 +159,18 @@ public class gui {
 		JButton btnCadastrar = new JButton("Cadastrar");
 		btnCadastrar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Cliente c = new Cliente();
-				ClienteDAO dao = new ClienteDAO();
-				c.setNome(tfNome.getText());
-				c.setEndereco(tfNomeDoTutor.getText());
-				c.setFone(tfFone.getText());
-				c.setCelular(tfCelular.getText());
+				Pet p = new Pet();
+				PetDAO dao = new PetDAO();
+				p.setNome(tfNome.getText());
+				p.setTutor(tfNomeDoTutor.getText());
+				p.setPorte(comboBox.getSelectedItem().toString());
+				p.setRaca(tfRaca.getText());
 				if (rbMacho.isSelected()) {
-					c.setSexo("M");
+					p.setSexo("Macho");
 				} else {
-					c.setSexo("F");
+					p.setSexo("Fêmea");
 				}
-				c.setObs(textArea.getText());
-				dao.create(c);
+				dao.create(p);
 				readJTable();
 			}
 		});
@@ -183,18 +181,17 @@ public class gui {
 		btnExcluir.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (table.getSelectedRow() != -1) {
-					Cliente c = new Cliente();
-					ClienteDAO dao = new ClienteDAO();
-					c.setCodigo((int) table.getValueAt(table.getSelectedRow(), 0));
-					dao.delete(c);
+					Pet p = new Pet();
+					PetDAO dao = new PetDAO();
+					p.setCodigo((int) table.getValueAt(table.getSelectedRow(), 0));
+					dao.delete(p);
 					readJTable();
 					tfNome.setText("");
 					tfNomeDoTutor.setText("");
-					tfFone.setText("");
-					tfCelular.setText("");
+					tfRaca.setText("");
 					tfCodigo.setText("");
-					textArea.setText("");
-
+					buttonGroup.clearSelection();
+					comboBox.setSelectedItem(null);
 				}
 			}
 		});
@@ -205,20 +202,19 @@ public class gui {
 		btnAlterar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (table.getSelectedRow() != -1) {
-					Cliente c = new Cliente();
-					ClienteDAO dao = new ClienteDAO();
-					c.setCodigo((int) table.getValueAt(table.getSelectedRow(), 0));
-					c.setNome(tfNome.getText());
-					c.setEndereco(tfNomeDoTutor.getText());
-					c.setFone(tfFone.getText());
-					c.setCelular(tfCelular.getText());
+					Pet p = new Pet();
+					PetDAO dao = new PetDAO();
+					p.setCodigo((int) table.getValueAt(table.getSelectedRow(), 0));
+					p.setNome(tfNome.getText());
+					p.setTutor(tfNomeDoTutor.getText());
+					p.setPorte(comboBox.getSelectedItem().toString());
+					p.setRaca(tfRaca.getText());
 					if (rbMacho.isSelected()) {
-						c.setSexo("M");
+						p.setSexo("Macho");
 					} else {
-						c.setSexo("F");
+						p.setSexo("Femea");
 					}
-					c.setObs(textArea.getText());
-					dao.update(c);
+					dao.update(p);
 					readJTable();
 				}
 			}
@@ -226,8 +222,8 @@ public class gui {
 		btnAlterar.setBounds(120, 309, 89, 23);
 		frame.getContentPane().add(btnAlterar);
 		
-		JComboBox comboBox = new JComboBox();
-		comboBox.setModel(new DefaultComboBoxModel(new String[] {"Pequeno", "Medio", "Grande"}));
+		comboBox = new JComboBox();
+		comboBox.setModel(new DefaultComboBoxModel(new String[] {"", "Pequeno", "Medio", "Grande"}));
 		comboBox.setBounds(34, 88, 86, 20);
 		frame.getContentPane().add(comboBox);
 		
@@ -241,16 +237,6 @@ public class gui {
 		frame.getContentPane().add(brtImagem);
 	}
 
-	private class SwingAction extends AbstractAction {
-		public SwingAction() {
-			putValue(NAME, "SwingAction");
-			putValue(SHORT_DESCRIPTION, "Some short description");
-		}
-
-		public void actionPerformed(ActionEvent e) {
-		}
-	}
-
 	public void readJTable() {
 	    // Obtém o modelo de tabela da JTable
 	    DefaultTableModel modelo = (DefaultTableModel) table.getModel();
@@ -258,22 +244,21 @@ public class gui {
 	    // Limpa todas as linhas da tabela para evitar duplicações
 	    modelo.setNumRows(0);
 
-	    // Instancia o ClienteDAO para ler os dados do banco de dados
-	    ClienteDAO cdao = new ClienteDAO();
+	    // Instancia o PetDAO para ler os dados do banco de dados
+	    PetDAO cdao = new PetDAO();
 
-	    // Obtém a lista de clientes do banco de dados
-	    List<Cliente> clientes = cdao.read();
+	    // Obtém a lista de Pets do banco de dados
+	    List<Pet> Pets = cdao.read();
 
-	    // Adiciona os dados dos clientes ao modelo de tabela
-	    for (Cliente c : clientes) {
+	    // Adiciona os dados dos Pets ao modelo de tabela
+	    for (Pet p : Pets) {
 	        modelo.addRow(new Object[] {
-	            c.getCodigo(),
-	            c.getNome(),
-	            c.getEndereco(),
-	            c.getFone(),
-	            c.getCelular(),
-	            c.getSexo(),
-	            c.getObs()
+	            p.getCodigo(),
+	            p.getNome(),
+	            p.getTutor(),
+	            p.getPorte(),
+	            p.getRaca(),
+	            p.getSexo(),
 	        });
 	    }
 	}
