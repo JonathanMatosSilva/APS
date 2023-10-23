@@ -6,13 +6,18 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -43,7 +48,8 @@ public class gui {
 	private FileInputStream fis;
 	private int tamanho;
 	private JLabel lblImagem;
-
+    PetDAO cdao = new PetDAO();
+    List<Pet> Pets = cdao.read();
 
 	/**
 	 * Create the application.
@@ -140,6 +146,12 @@ public class gui {
 				} else {
 					JOptionPane.showMessageDialog(null, "Selecione uma linha para ser alterada.");
 				}
+				
+				// Insere imagem na tela
+				int linhaSelecionada = table.getSelectedRow();
+                Image img = Pets.get(linhaSelecionada).getFoto();
+                lblImagem.setIcon(new ImageIcon(img));
+                Pets = cdao.read();
 			}
 		});
 		JScrollPane scrollPane = new JScrollPane(table); // Adicione a tabela a um JScrollPane
@@ -160,6 +172,11 @@ public class gui {
 				} else {
 					p.setSexo("Fêmea");
 				}
+
+				Icon icon = lblImagem.getIcon();
+				ImageIcon imageIcon = (ImageIcon) icon;
+				Image imagem = imageIcon.getImage();
+				p.setFoto(imagem);
 				dao.create(p);
 				readJTable();
 			}
@@ -182,6 +199,7 @@ public class gui {
 					tfCodigo.setText("");
 					buttonGroup.clearSelection();
 					comboBox.setSelectedItem(null);
+					lblImagem.setIcon(null);
 				}
 			}
 		});
@@ -204,6 +222,10 @@ public class gui {
 					} else {
 						p.setSexo("Femea");
 					}
+					Icon icon = lblImagem.getIcon();
+					ImageIcon imageIcon = (ImageIcon) icon;
+					Image imagem = imageIcon.getImage();
+					p.setFoto(imagem);
 					dao.update(p);
 					readJTable();
 				}
@@ -230,6 +252,21 @@ public class gui {
 		lblImagem.setBounds(442, 11, 300, 300);
 		lblImagem.setBorder(BorderFactory.createLineBorder(Color.black));
 		frame.getContentPane().add(lblImagem);
+		
+		JButton btnLimparCampos = new JButton("Limpar");
+		btnLimparCampos.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				tfNome.setText("");
+				tfNomeDoTutor.setText("");
+				tfRaca.setText("");
+				tfCodigo.setText("");
+				buttonGroup.clearSelection();
+				comboBox.setSelectedItem(null);
+				lblImagem.setIcon(null);
+			}
+		});
+		btnLimparCampos.setBounds(318, 309, 89, 23);
+		frame.getContentPane().add(btnLimparCampos);
 	}
 	
 	private void carregarFoto() {
@@ -244,25 +281,15 @@ public class gui {
 				Image foto = ImageIO.read(jfc.getSelectedFile()).getScaledInstance(lblImagem.getWidth(), lblImagem.getHeight(), Image.SCALE_SMOOTH);
 				lblImagem.setIcon(new ImageIcon(foto));
 			} catch (Exception e) {
-				System.out.println(e);
+				e.printStackTrace();
 			}
 		}
 	}
 
 	public void readJTable() {
-	    // Obtém o modelo de tabela da JTable
 	    DefaultTableModel modelo = (DefaultTableModel) table.getModel();
-
-	    // Limpa todas as linhas da tabela para evitar duplicações
 	    modelo.setNumRows(0);
-
-	    // Instancia o PetDAO para ler os dados do banco de dados
-	    PetDAO cdao = new PetDAO();
-
-	    // Obtém a lista de Pets do banco de dados
-	    List<Pet> Pets = cdao.read();
-
-	    // Adiciona os dados dos Pets ao modelo de tabela
+	    Pets = cdao.read();
 	    for (Pet p : Pets) {
 	        modelo.addRow(new Object[] {
 	            p.getCodigo(),

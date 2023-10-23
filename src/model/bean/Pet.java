@@ -1,5 +1,7 @@
 package model.bean;
 
+import java.awt.Image;
+
 public class Pet {
 
 	private int codigo;
@@ -8,6 +10,7 @@ public class Pet {
 	private String porte;
 	private String raca;
 	private String sexo;
+	private Image foto;
 	
 	public int getCodigo() {
 		return codigo;
@@ -44,6 +47,12 @@ public class Pet {
 	}
 	public void setSexo(String sexo) {
 		this.sexo = sexo;
+	}
+	public Image getFoto() {
+		return foto;
+	}
+	public void setFoto(Image foto) {
+		this.foto = foto;
 	}
 
 	
