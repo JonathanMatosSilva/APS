@@ -2,80 +2,153 @@ package model.ordenacao;
 
 import java.util.Arrays;
 
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
+
 public class Ordenacao {
 
 
-	public static void ordenacaoBolha(int[] array) {
-        int n = array.length;
-        boolean trocado;
-        do {
-            trocado = false;
-            for (int i = 1; i < n; i++) {
-                if (array[i - 1] > array[i]) {
-                    // Troca os elementos
-                    int temp = array[i - 1];
-                    array[i - 1] = array[i];
-                    array[i] = temp;
-                    trocado = true;
+    public static void bubbleSortJTable(JTable table, int columnIndex) {
+        DefaultTableModel model = (DefaultTableModel) table.getModel();
+        int rowCount = model.getRowCount();
+
+        for (int i = 0; i < rowCount - 1; i++) {
+            for (int j = 0; j < rowCount - i - 1; j++) {
+                Comparable<Object> value1 = (Comparable<Object>) model.getValueAt(j, columnIndex);
+                Comparable<Object> value2 = (Comparable<Object>) model.getValueAt(j + 1, columnIndex);
+
+                if (value1.compareTo(value2) > 0) {
+                    // Troca as linhas
+                    Object[] temp = new Object[model.getColumnCount()];
+                    for (int k = 0; k < model.getColumnCount(); k++) {
+                        temp[k] = model.getValueAt(j, k);
+                        model.setValueAt(model.getValueAt(j + 1, k), j, k);
+                        model.setValueAt(temp[k], j + 1, k);
+                    }
                 }
             }
-        } while (trocado);
-    }
-
-	public static void ordenacaoRapida(int[] array, int baixo, int alto) {
-        if (baixo < alto) {
-            int indicePivo = particao(array, baixo, alto);
-            ordenacaoRapida(array, baixo, indicePivo - 1);
-            ordenacaoRapida(array, indicePivo + 1, alto);
         }
     }
 
-    private static int particao(int[] array, int baixo, int alto) {
-        int pivo = array[alto];
-        int i = baixo - 1;
-        for (int j = baixo; j < alto; j++) {
-            if (array[j] < pivo) {
+    public static void quickSortJTable(JTable table, int columnIndex, int low, int high) {
+        DefaultTableModel model = (DefaultTableModel) table.getModel();
+        
+        if (low < high) {
+            int pivotIndex = partition(table, columnIndex, low, high);
+            quickSortJTable(table, columnIndex, low, pivotIndex - 1);
+            quickSortJTable(table, columnIndex, pivotIndex + 1, high);
+        }
+    }
+
+    private static int partition(JTable table, int columnIndex, int low, int high) {
+        DefaultTableModel model = (DefaultTableModel) table.getModel();
+        Comparable<Object> pivot = (Comparable<Object>) model.getValueAt(high, columnIndex);
+        int i = (low - 1);
+
+        for (int j = low; j < high; j++) {
+            Comparable<Object> current = (Comparable<Object>) model.getValueAt(j, columnIndex);
+
+            if (current.compareTo(pivot) < 0) {
                 i++;
-                int temp = array[i];
-                array[i] = array[j];
-                array[j] = temp;
+                swapRows(model, i, j);
             }
         }
-        int temp = array[i + 1];
-        array[i + 1] = array[alto];
-        array[alto] = temp;
+
+        swapRows(model, i + 1, high);
         return i + 1;
     }
 
-	
-    public static void ordenacaoPorFusao(int[] array) {
-        if (array.length > 1) {
-            int meio = array.length / 2;
-            int[] esquerda = Arrays.copyOfRange(array, 0, meio);
-            int[] direita = Arrays.copyOfRange(array, meio, array.length);
-
-            ordenacaoPorFusao(esquerda);
-            ordenacaoPorFusao(direita);
-
-            fusao(array, esquerda, direita);
+    private static void swapRows(DefaultTableModel model, int i, int j) {
+        Object[] temp = new Object[model.getColumnCount()];
+        for (int k = 0; k < model.getColumnCount(); k++) {
+            temp[k] = model.getValueAt(i, k);
+            model.setValueAt(model.getValueAt(j, k), i, k);
+            model.setValueAt(temp[k], j, k);
         }
     }
 
-    private static void fusao(int[] array, int[] esquerda, int[] direita) {
-        int i = 0, j = 0, k = 0;
-        while (i < esquerda.length && j < direita.length) {
-            if (esquerda[i] < direita[j]) {
-                array[k++] = esquerda[i++];
-            } else {
-                array[k++] = direita[j++];
+	
+    public static void mergeSortJTable(JTable table, int columnIndex) {
+        DefaultTableModel model = (DefaultTableModel) table.getModel();
+        int rowCount = model.getRowCount();
+
+        if (rowCount <= 1) {
+            return; // A tabela já está ordenada
+        }
+
+        int mid = rowCount / 2;
+        Object[][] left = new Object[mid][model.getColumnCount()];
+        Object[][] right = new Object[rowCount - mid][model.getColumnCount()];
+
+        for (int i = 0; i < mid; i++) {
+            for (int j = 0; j < model.getColumnCount(); j++) {
+                left[i][j] = model.getValueAt(i, j);
             }
         }
-        while (i < esquerda.length) {
-            array[k++] = esquerda[i++];
+
+        for (int i = mid; i < rowCount; i++) {
+            for (int j = 0; j < model.getColumnCount(); j++) {
+                right[i - mid][j] = model.getValueAt(i, j);
+            }
         }
-        while (j < direita.length) {
-            array[k++] = direita[j++];
+
+        DefaultTableModel leftModel = new DefaultTableModel(left, getColumnNames(table));
+        DefaultTableModel rightModel = new DefaultTableModel(right, getColumnNames(table));
+
+        mergeSortJTable(new JTable(leftModel), columnIndex);
+        mergeSortJTable(new JTable(rightModel), columnIndex);
+
+        merge(table, leftModel, rightModel, columnIndex);
+    }
+
+    private static void merge(JTable table, DefaultTableModel leftModel, DefaultTableModel rightModel, int columnIndex) {
+        DefaultTableModel model = (DefaultTableModel) table.getModel();
+        int leftRowCount = leftModel.getRowCount();
+        int rightRowCount = rightModel.getRowCount();
+        int leftIndex = 0, rightIndex = 0, mergedIndex = 0;
+
+        while (leftIndex < leftRowCount && rightIndex < rightRowCount) {
+            Comparable<Object> leftValue = (Comparable<Object>) leftModel.getValueAt(leftIndex, columnIndex);
+            Comparable<Object> rightValue = (Comparable<Object>) rightModel.getValueAt(rightIndex, columnIndex);
+
+            if (leftValue.compareTo(rightValue) <= 0) {
+                for (int j = 0; j < model.getColumnCount(); j++) {
+                    model.setValueAt(leftModel.getValueAt(leftIndex, j), mergedIndex, j);
+                }
+                leftIndex++;
+            } else {
+                for (int j = 0; j < model.getColumnCount(); j++) {
+                    model.setValueAt(rightModel.getValueAt(rightIndex, j), mergedIndex, j);
+                }
+                rightIndex++;
+            }
+
+            mergedIndex++;
+        }
+
+        while (leftIndex < leftRowCount) {
+            for (int j = 0; j < model.getColumnCount(); j++) {
+                model.setValueAt(leftModel.getValueAt(leftIndex, j), mergedIndex, j);
+            }
+            leftIndex++;
+            mergedIndex++;
+        }
+
+        while (rightIndex < rightRowCount) {
+            for (int j = 0; j < model.getColumnCount(); j++) {
+                model.setValueAt(rightModel.getValueAt(rightIndex, j), mergedIndex, j);
+            }
+            rightIndex++;
+            mergedIndex++;
         }
     }
 
+    private static String[] getColumnNames(JTable table) {
+        int columnCount = table.getColumnCount();
+        String[] columnNames = new String[columnCount];
+        for (int i = 0; i < columnCount; i++) {
+            columnNames[i] = table.getColumnName(i);
+        }
+        return columnNames;
+    }
 }

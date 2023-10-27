@@ -6,11 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 
 import javax.imageio.ImageIO;
@@ -35,6 +31,8 @@ import javax.swing.table.DefaultTableModel;
 import model.bean.Pet;
 import model.dao.PetDAO;
 
+import model.ordenacao.*;
+
 public class gui {
 
 	public JFrame frame;
@@ -48,6 +46,9 @@ public class gui {
 	private FileInputStream fis;
 	private int tamanho;
 	private JLabel lblImagem;
+	private JLabel lblMergeSort;
+	private JLabel lblBubbleSort;
+	private JLabel lblQuickSort;
     PetDAO cdao = new PetDAO();
     List<Pet> Pets = cdao.read();
 
@@ -181,7 +182,7 @@ public class gui {
 				readJTable();
 			}
 		});
-		btnCadastrar.setBounds(10, 309, 100, 23);
+		btnCadastrar.setBounds(10, 274, 100, 23);
 		frame.getContentPane().add(btnCadastrar);
 
 		JButton btnExcluir = new JButton("Excluir");
@@ -203,7 +204,7 @@ public class gui {
 				}
 			}
 		});
-		btnExcluir.setBounds(219, 309, 89, 23);
+		btnExcluir.setBounds(219, 274, 89, 23);
 		frame.getContentPane().add(btnExcluir);
 
 		JButton btnAlterar = new JButton("Alterar");
@@ -231,7 +232,7 @@ public class gui {
 				}
 			}
 		});
-		btnAlterar.setBounds(120, 309, 89, 23);
+		btnAlterar.setBounds(120, 274, 89, 23);
 		frame.getContentPane().add(btnAlterar);
 		
 		comboBox = new JComboBox();
@@ -263,10 +264,72 @@ public class gui {
 				buttonGroup.clearSelection();
 				comboBox.setSelectedItem(null);
 				lblImagem.setIcon(null);
+				lblQuickSort.setText("");
+				lblMergeSort.setText("");
+				lblBubbleSort.setText("");
+				readJTable();
 			}
 		});
-		btnLimparCampos.setBounds(318, 309, 89, 23);
+		btnLimparCampos.setBounds(318, 274, 89, 23);
 		frame.getContentPane().add(btnLimparCampos);
+		
+		JButton btnBubbleSort = new JButton("BubbleSort");
+		btnBubbleSort.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Ordenacao ord = new Ordenacao();
+				long tmpInicial = System.currentTimeMillis();
+
+				ord.bubbleSortJTable(table, 1);
+		        long endTime = System.currentTimeMillis();
+		        long elapsedTime = endTime - tmpInicial;
+		        lblBubbleSort.setText(String.valueOf(elapsedTime) + "ms");
+				
+			}
+		});
+		btnBubbleSort.setBounds(123, 308, 86, 23);
+		frame.getContentPane().add(btnBubbleSort);
+		
+		JButton btnQuickSort = new JButton("QuickSort");
+		btnQuickSort.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Ordenacao ord = new Ordenacao();
+				long tmpInicial = System.currentTimeMillis();
+
+				ord.quickSortJTable(table, 1, 0, table.getRowCount() - 1);
+		        long endTime = System.currentTimeMillis();
+		        long elapsedTime = endTime - tmpInicial;
+		        lblQuickSort.setText(String.valueOf(elapsedTime) + "ms");
+			}
+		});
+		btnQuickSort.setBounds(10, 308, 99, 23);
+		frame.getContentPane().add(btnQuickSort);
+		
+		JButton btnMergeSort = new JButton("Merge Sort");
+		btnMergeSort.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Ordenacao ord = new Ordenacao();
+				long tmpInicial = System.currentTimeMillis();
+
+				ord.mergeSortJTable(table, 1);
+		        long endTime = System.currentTimeMillis();
+		        long elapsedTime = endTime - tmpInicial;
+		        lblMergeSort.setText(String.valueOf(elapsedTime) + "ms");
+			}
+		});
+		btnMergeSort.setBounds(219, 308, 89, 23);
+		frame.getContentPane().add(btnMergeSort);
+		
+		lblQuickSort = new JLabel("");
+		lblQuickSort.setBounds(38, 339, 46, 14);
+		frame.getContentPane().add(lblQuickSort);
+		
+		lblBubbleSort = new JLabel("");
+		lblBubbleSort.setBounds(144, 339, 46, 14);
+		frame.getContentPane().add(lblBubbleSort);
+		
+		lblMergeSort = new JLabel("");
+		lblMergeSort.setBounds(240, 339, 46, 14);
+		frame.getContentPane().add(lblMergeSort);
 	}
 	
 	private void carregarFoto() {
